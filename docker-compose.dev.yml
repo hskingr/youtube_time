@@ -1,0 +1,31 @@
+# Shared Database Docker Compose
+# Use this for local development with shared database
+
+services:
+  youtube_time_api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      GOOGLE_CSE_API_KEY: ${GOOGLE_CSE_API_KEY}
+      GOOGLE_CSE_ID: ${GOOGLE_CSE_ID}
+      YOUTUBE_API_KEY: ${YOUTUBE_API_KEY}
+      DB_PATH: /app/data/cache.db
+    volumes:
+      # Mount same database for both local and production
+      - ./backend/data:/app/data
+      - ./backend/logs:/app/logs
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+  youtube_time:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    depends_on:
+      - youtube_time_api

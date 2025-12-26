@@ -1,0 +1,41 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug (ts-node ESM)",
+            "cwd": "${workspaceFolder}/backend",
+            "runtimeExecutable": "nodemon",
+            "runtimeArgs": [
+                "--watch",
+                "src",
+                "--ext",
+                "ts",
+                "--signal",
+                "SIGINT",
+                "--exec",
+                "node --loader ts-node/esm src/server.ts"
+            ],
+            "env": {
+                "TS_NODE_PROJECT": "${workspaceFolder}/backend/tsconfig.json"
+            },
+            "console": "integratedTerminal",
+            "skipFiles": ["<node_internals>/**"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug (compiled JS)",
+            "cwd": "${workspaceFolder}/backend",
+            "program": "${workspaceFolder}/backend/dist/server.js",
+            "preLaunchTask": "npm: build",
+            "outFiles": [
+                "${workspaceFolder}/backend/dist/**/*.js"
+            ],
+            "sourceMaps": true,
+            "console": "integratedTerminal",
+            "skipFiles": ["<node_internals>/**"]
+        }
+    ]
+}

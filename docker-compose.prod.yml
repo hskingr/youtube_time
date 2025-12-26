@@ -1,0 +1,64 @@
+services:
+  youtube_time_api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: ${DOCKER_REGISTRY}/youtube_time-backend:latest
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      YOUTUBE_API_KEY: ${YOUTUBE_API_KEY}
+      DB_PATH: /app/data/cache.db
+    restart: unless-stopped
+    volumes:
+      - /opt/docker/data/youtube_time/data:/app/data
+      - /opt/docker/data/youtube_time/logs:/app/logs
+    expose:
+      - "3000"
+    labels:
+      - "traefik.enable=true"
+      # 1. Define the Router
+      - "traefik.http.routers.youtube_time_api.rule=Host(`${DOMAIN}`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.youtube_time_api.entrypoints=websecure"
+      - "traefik.http.routers.youtube_time_api.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.youtube_time_api.priority=100" # High priority ensures this captures /api before the frontend sees it
+
+      # 2. Define Middleware to Strip Prefix (Crucial)
+      # This turns "domain.com/api/users" into "/users" for your node app
+      - "traefik.http.middlewares.youtube-api-strip.stripprefix.prefixes=/api"
+      - "traefik.http.routers.youtube_time_api.middlewares=youtube-api-strip"
+
+      # 3. Define the Service
+      - "traefik.http.services.youtube_time_api.loadbalancer.server.port=3000"
+    networks:
+      - myNetwork
+
+  youtube_time:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: ${DOCKER_REGISTRY}/youtube_time-frontend:latest
+    restart: unless-stopped
+    expose:
+      - "80"
+    depends_on:
+      - youtube_time_api
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.youtube_time.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.youtube_time.entrypoints=websecure"
+      - "traefik.http.routers.youtube_time.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.youtube_time.priority=1"
+    networks:
+      - myNetwork
+
+networks:
+  myNetwork:
+    external: true
+    name: myNetwork
