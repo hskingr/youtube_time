@@ -2,7 +2,7 @@
 
 This lab is a playground for collecting and analyzing YouTube Data API responses to improve how the app chooses videos in relation to the current time.
 
-The lab is **optional** and runs separately from the main server. It reuses the same YouTube API key and search logic, but stores its own data (JSON files, reports) under `backend/lab/`.
+The lab is **optional** and runs separately from the main server. It reuses the same YouTube API key and search logic, but stores its own data (JSON files, reports) under `lab/`.
 
 ## Goals
 
@@ -11,29 +11,27 @@ The lab is **optional** and runs separately from the main server. It reuses the 
 - Compare different query formats and parameters.
 - Inform improvements to `backend/src/search.ts` without touching production code or the main cache DB.
 
-## Layout (planned)
+## Layout
 
-- `backend/lab/`
-  - `collect/`
-    - `run.ts` – main entrypoint to run data collection for a set of times.
-  - `analyze/`
-    - `run.ts` – main entrypoint to analyze previously collected data.
-  - `data/` – stored raw JSON and any derived analysis artifacts.
-  - `config/` (optional) – config files for times to query, limits, etc.
+- `lab/`
+  - `collect/run.ts` – data collection entrypoint (YouTube search)
+  - `analyze/run.ts` – analyzer for saved responses
+  - `data/` – stored raw JSON and any derived analysis artifacts
 
 ## Running the Lab
 
-From `backend/` (after `npm install` and `.env` is configured):
+From `lab/` (after `npm install` and `YOUTUBE_API_KEY` is set in your shell or a local `.env`):
 
 ```bash
-# Collect data for a set of times (skeleton, to be expanded)
-npm run lab:collect
-
-# Analyze collected data (skeleton, to be expanded)
-npm run lab:analyze
+npm install
+npm run collect   # collects YouTube search responses
+npm run analyze   # scans saved files for strict time matches
 ```
 
-Both commands will use the same `YOUTUBE_API_KEY` that the main server uses. If the key is missing, the lab will exit with an error message.
+Notes:
+- The collector builds multiple 12-hour time variants and appends `-january ... -december` to queries to avoid month/date hits.
+- The current collector also sends `publishedBefore=2015-01-01T00:00:00Z` to bias toward older uploads.
+- Saved files are written under `lab/data/*_test_result.json` with the request metadata (API key redacted).
 
 ## Next Steps (for future work)
 

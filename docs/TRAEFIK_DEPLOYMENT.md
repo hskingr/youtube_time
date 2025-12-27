@@ -37,9 +37,7 @@ cd /opt/youtube_time
 # Create .env file
 nano .env
 
-# Add your API keys:
-GOOGLE_CSE_API_KEY=your_key
-GOOGLE_CSE_ID=your_cse_id
+# Add your API key:
 YOUTUBE_API_KEY=your_youtube_key
 ```
 
@@ -106,7 +104,7 @@ ssh user@your-vps-ip
 # Navigate to project
 cd /opt/youtube_time
 
-# Create .env file with your API keys
+# Create .env file with your API key
 nano .env
 
 # Ensure network exists

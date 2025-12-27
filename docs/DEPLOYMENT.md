@@ -63,8 +63,6 @@ docker-compose down
 ```bash
 docker run -d \
   -p 3000:3000 \
-  -e GOOGLE_CSE_API_KEY=your_key \
-  -e GOOGLE_CSE_ID=your_cse_id \
   -e YOUTUBE_API_KEY=your_youtube_key \
   -v backend-data:/app/data \
   -v backend-logs:/app/logs \

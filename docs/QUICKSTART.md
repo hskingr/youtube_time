@@ -11,9 +11,8 @@
 ### 1. Clone & Install
 ```bash
 cd youtube_time
-npm install
-cd backend && npm install
-cd ..
+cd backend && npm install && cd ..
+cd frontend && npm install && cd ..
 ```
 
 ### 2. Configure Environment
@@ -59,25 +58,11 @@ npm start
 
 ### Serve Frontend
 ```bash
-# Option 1: Simple Python server
 cd frontend
-python -m http.server 8000
-
-# Option 2: With Live Reload (requires live-server)
-npm install -g live-server
-live-server frontend
-
-# Option 3: Node.js http-server
-npm install -g http-server
-http-server frontend
+npm start  # http-server on port 8000
 ```
 
-Visit http://localhost:8000 (or your server's port)
-
-Update `frontend/app.js` if using different backend port:
-```javascript
-const API_URL = 'http://localhost:3000';
-```
+Visit http://localhost:8000 (or your server's port). The frontend auto-detects the backend base URL (localhost in dev, `/api` in prod), so you rarely need to touch `frontend/app.js`.
 
 ## Production Deployment with Traefik
 
@@ -163,23 +148,28 @@ youtube_time/
 ├── backend/
 │   ├── src/
 │   │   ├── server.ts        # Express app
-│   │   ├── search.ts        # YouTube/CSE search
+│   │   ├── search.ts        # YouTube search + verification
 │   │   ├── database.ts      # SQLite cache
-│   │   └── transform.ts     # Response transform
-│   ├── dist/                # Compiled JavaScript
+│   │   └── transform.ts     # Response transform placeholder
 │   ├── data/                # SQLite database (persisted)
 │   ├── logs/                # Application logs
 │   ├── Dockerfile
-│   ├── ecosystem.config.js  # PM2 config
+│   ├── ecosystem.config.cjs # PM2 config
 │   └── package.json
 ├── frontend/
 │   ├── index.html           # Single page app
-│   ├── app.js              # Client logic
-│   ├── styles.css          # Retro styling
-│   └── nginx.conf          # Nginx proxy config
+│   ├── app.js               # Client logic
+│   ├── styles.css           # Styling
+│   └── Dockerfile
+├── lab/
+│   ├── collect/run.ts       # Ad-hoc YouTube data collection
+│   ├── analyze/run.ts       # Analysis of collected data
+│   └── data/                # Saved JSON responses
+├── docs/                    # Guides (quickstart, deployment, lab)
+├── scripts/                 # Helper scripts
 ├── docker-compose.yml       # Development
 ├── docker-compose.prod.yml  # Production (Traefik)
-└── DEPLOYMENT.md           # This file
+└── DEPLOYMENT.md            # Deployment guide
 ```
 
 ## API Endpoints

@@ -2,7 +2,7 @@
 
 **Status**: ✅ Complete (core implementation done)
 
-This document serves as a reference for the project architecture and implementation strategy. The codebase has evolved since initial planning; see [README.md](../README.md) and [QUICKSTART.md](QUICKSTART.md) for current setup.
+This document serves as a reference for the project architecture and implementation strategy. The codebase has evolved since initial planning; see [README.md](../README.md) and [QUICKSTART.md](QUICKSTART.md) for current setup. The current app uses **YouTube Data API only** (no Custom Search), and some file names mentioned below (e.g., cache.ts, fuzzy-matcher.js) were part of earlier iterations.
 
 ## Overview
 
