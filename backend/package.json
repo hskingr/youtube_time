@@ -5,9 +5,12 @@
   "main": "dist/server.js",
   "scripts": {
     "build": "tsc",
+    "typecheck": "tsc --noEmit",
     "start": "node dist/server.js",
     "dev": "tsc && node --watch dist/server.js",
-    "dev:nodemon": "nodemon --watch src --ext ts --signal SIGINT --exec \"node --loader ts-node/esm src/server.ts\""
+    "dev:nodemon": "nodemon --watch src --ext ts --signal SIGINT --exec \"node --loader ts-node/esm src/server.ts\"",
+    "lab:collect": "cd ../lab && npm run collect",
+    "lab:analyze": "cd ../lab && npm run analyze"
   },
   "keywords": [],
   "author": "",

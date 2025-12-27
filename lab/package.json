@@ -1,0 +1,22 @@
+{
+  "type": "module",
+  "name": "lab",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "collect": "node --loader ts-node/esm collect/run.ts",
+    "analyze": "node --loader ts-node/esm analyze/run.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "dotenv": "^17.2.3"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}

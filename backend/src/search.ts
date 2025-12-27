@@ -72,6 +72,32 @@ function extractTimeFromTitle(title: string, targetTime: string): boolean {
   return matches.some(match => match.includes(targetTime.substring(0, 5)));
 }
 
+interface YoutubeApiParams {
+  key?: string;
+  part?: string;
+  q?: string;
+  maxResults?: number;
+  order?: string;
+  type?: string;
+  videoEmbeddable?: string;
+  videoSyndicated?: string;
+  safeSearch?: string;
+  [key: string]: string | number | undefined;
+}
+
+export async function makeYouTubeApiRequest(
+  endpoint: string,
+  params: YoutubeApiParams
+): Promise<any> {
+  const response = await axios.get(`https://www.googleapis.com/youtube/v3/${endpoint}`, {
+    params: {
+      ...params,
+    },
+  });
+
+  return response;
+}
+
 async function searchWithYouTube(query: string): Promise<SearchResult | null> {
   const apiKey = process.env.YOUTUBE_API_KEY;
 
@@ -80,29 +106,26 @@ async function searchWithYouTube(query: string): Promise<SearchResult | null> {
     return null;
   }
 
-  /* GET https://youtube.googleapis.com/youtube/v3/search?q=12%3A41&key=[YOUR_API_KEY] HTTP/1.1
+  const params = {
+    key: apiKey,
+    part: 'snippet',
+    q: query,
+    maxResults: 50,
+    order: 'viewCount',
+    type: 'video',
+    videoEmbeddable: 'true',
+    videoSyndicated: 'true',
+    safeSearch: 'moderate'
+  };
 
-Authorization: Bearer [YOUR_ACCESS_TOKEN]
-Accept: application/json
- */
   try {
-    const response = await axios.get<YouTubeResponse>('https://www.googleapis.com/youtube/v3/search', {
-      params: {
-        key: apiKey,
-        part: 'snippet',
-        q: query,
-        maxResults: 50,
-        order: 'viewCount',
-        type: 'video',
-        videoEmbeddable: 'true',
-        videoSyndicated: 'true',
-        safeSearch: 'moderate'
-      }
-    });
+    const response = await makeYouTubeApiRequest('search', params as YoutubeApiParams);
 
-    if (!response.data.items || response.data.items.length === 0) return null;
+    const data = response.data as YouTubeResponse;
 
-    const filtered = response.data.items.filter(item =>
+    if (!data.items || data.items.length === 0) return null;
+
+    const filtered = data.items.filter((item: YouTubeSearchItem) =>
       extractTimeFromTitle(item.snippet.title, query)
     );
 
