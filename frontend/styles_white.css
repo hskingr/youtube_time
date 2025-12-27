@@ -1,0 +1,39 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.bbh-bogle-regular {
+  font-family: "BBH Bogle", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.libertinus-mono-regular {
+  font-family: "Libertinus Mono", monospace;
+  font-weight: 400;
+  font-style: normal;
+}
+
+
+
+.hidden {
+  display: none !important;
+}
+
+.video-container {
+  margin: 20px 0;
+}
+
+/* Container */
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 20px solid #ccc;
+  position: relative;
+  z-index: 1;
+  margin-top: 30px;
+  margin-bottom: 30px;
+}

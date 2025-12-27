@@ -62,6 +62,8 @@ function showVideo(videoId, title) {
     document.getElementById('currentTime').textContent = displayText;
 
 
+
+
   document.getElementById('videoContainer').classList.remove('hidden');
 }
 
