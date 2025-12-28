@@ -6,6 +6,7 @@ interface SearchResult {
   videoUrl: string;
   title: string;
   viewCount: number;
+  thumbnailUrl?: string | undefined;
 }
 
 interface YouTubeSearchItem {
@@ -14,6 +15,11 @@ interface YouTubeSearchItem {
   };
   snippet: {
     title: string;
+    thumbnails?: {
+      default?: { url: string; width: number; height: number };
+      medium?: { url: string; width: number; height: number };
+      high?: { url: string; width: number; height: number };
+    };
   };
 }
 
@@ -142,11 +148,16 @@ async function searchWithYouTube(query: string): Promise<SearchResult | null> {
       const isValid = await verifyVideoAvailable(videoId, apiKey);
 
       if (isValid) {
+        const thumbnailUrl = item.snippet.thumbnails?.medium?.url ||
+          item.snippet.thumbnails?.high?.url ||
+          item.snippet.thumbnails?.default?.url;
+
         return {
           videoId,
           videoUrl: `https://www.youtube.com/watch?v=${videoId}`,
           title: item.snippet.title,
-          viewCount: 0
+          viewCount: 0,
+          thumbnailUrl
         };
       }
     }
