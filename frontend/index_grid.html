@@ -31,6 +31,32 @@
             gap: 1rem;
             margin-bottom: 2rem;
             flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .density-controls {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            border-left: 2px solid #00ff00;
+            padding-left: 1rem;
+        }
+
+        .density-label {
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            margin-right: 0.5rem;
+        }
+
+        .density-btn {
+            padding: 0.4rem 1rem;
+            font-size: 0.8rem;
+        }
+
+        .density-btn.active {
+            background: rgba(0, 255, 0, 0.3);
+            box-shadow: 0 0 10px #00ff00;
         }
 
         .btn {
@@ -134,6 +160,32 @@
             padding: 0.5rem;
         }
 
+        /* Skeleton loader */
+        .skeleton-loader {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                rgba(0, 255, 0, 0.05) 25%,
+                rgba(0, 255, 0, 0.1) 50%,
+                rgba(0, 255, 0, 0.05) 75%
+            );
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -200% 0;
+            }
+            100% {
+                background-position: 200% 0;
+            }
+        }
+
         /* Modal for video playback */
         .modal {
             display: none;
@@ -157,6 +209,45 @@
             width: 90%;
             max-width: 1200px;
             aspect-ratio: 16 / 9;
+        }
+
+        .modal-info {
+            position: absolute;
+            bottom: -100px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+        }
+
+        .modal-time {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 10px #00ff00;
+        }
+
+        .modal-title {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            opacity: 0.9;
+        }
+
+        .youtube-link {
+            display: inline-block;
+            color: #00ff00;
+            text-decoration: none;
+            border: 2px solid #00ff00;
+            padding: 0.5rem 1rem;
+            background: rgba(0, 255, 0, 0.1);
+            transition: all 0.3s ease;
+            margin-top: 0.5rem;
+        }
+
+        .youtube-link:hover {
+            background: rgba(0, 255, 0, 0.2);
+            box-shadow: 0 0 10px #00ff00;
         }
 
         .modal-close {
@@ -214,6 +305,12 @@
         <div class="grid-controls">
             <button id="jumpToNow" class="btn">Jump to Now</button>
             <button id="backToMain" class="btn">Back to Main</button>
+            <div class="density-controls">
+                <span class="density-label">Grid Size:</span>
+                <button id="densityCompact" class="btn density-btn">Compact</button>
+                <button id="densityNormal" class="btn density-btn active">Normal</button>
+                <button id="densityLarge" class="btn density-btn">Large</button>
+            </div>
         </div>
 
         <!-- Grid -->
@@ -232,6 +329,11 @@
             <iframe id="modalPlayer" src="" title="YouTube Video" frameborder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowfullscreen></iframe>
+            <div class="modal-info">
+                <div id="modalTime" class="modal-time"></div>
+                <div id="modalTitle" class="modal-title"></div>
+                <a id="youtubeLink" href="" target="_blank" class="youtube-link">↗ Watch on YouTube</a>
+            </div>
         </div>
     </div>
 
