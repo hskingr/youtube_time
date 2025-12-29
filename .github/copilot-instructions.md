@@ -12,6 +12,7 @@ This repo implements a small web app that shows a YouTube video matching the cur
 - **Frontend (Static HTML/JS/CSS):**
   - Files: `frontend/index.html`, `frontend/app.js`, `frontend/styles.css`.
   - Client logic: `app.js` computes HH:MM, selects API base (`localhost:3000` in dev, `origin + /api` in prod), calls `/video?time=HH:MM`, and embeds `https://www.youtube.com/embed/{videoId}`.
+  - Grid view: `frontend/grid.html` + `frontend/grid.js` displays 24-hour timeline with lazy loading (intersection observer), modal player, and jump-to-now navigation.
 - **Deployment:**
   - Traefik routes `/api` to backend and root to frontend. See `docker-compose.prod.yml`.
   - Frontend image serves static content via nginx; backend runs Node.
@@ -54,10 +55,13 @@ y  - Only YouTube API is used. No CSE features are present or required.
 - `backend/src/server.ts`: API routes, cache freshness logic, eviction.
 - `backend/src/database.ts`: SQLite schema and operations.
 - `backend/src/search.ts`: YouTube search + verification, time variant generation.
-- `frontend/app.js`: API base selection, DOM updates, iframe embed.
+- `frontend/app.js`: Main view - API base selection, DOM updates, iframe embed.
+- `frontend/grid.js`: Grid view - lazy loading, intersection observer, modal player.
+- `frontend/index.html`: Main single-video view.
+- `frontend/grid.html`: Grid timeline view (requires both grid.html and grid.js).
 - `docker-compose.prod.yml`: Traefik labels, strip-prefix middleware, service boundaries.
 - `docs/QUICKSTART.md`, `docs/DEPLOYMENT.md`, `docs/TRAEFIK_DEPLOYMENT.md`: operational guides.
-- Deployment helpers: `motherhouse.deploy.sh` (build/push/compose up) and `motherhouse.monitor.sh` (tail and health).
+- Deployment helpers: `motherhouse.deploy.sh` (build/push/compose up), `motherhouse.monitor.sh` (tail and health), `motherhouse.backup.database.sh` (backup SQLite DB).
 
 ## Common Tasks (Examples)
 - **Add a new time format (future):** Update `generateTimeVariants()` and the title token regex in `search.ts`; keep comparison normalized to `HH:MM`.
@@ -73,6 +77,7 @@ y  - Only YouTube API is used. No CSE features are present or required.
 - **Debug breakpoints not binding:** Use the `Debug (ts-node ESM)` config or rebuild before debugging compiled JS.
 - **API keys:** Must be present or the backend returns warnings and skips providers.
 - **Frontend caching:** `http-server` is set with `-c-1` to avoid stale assets during dev.
+- **Grid view 404 in production:** Ensure `frontend/grid.html` and `frontend/grid.js` exist before building Docker image. Frontend Dockerfile copies all files from `frontend/` to nginx's `/usr/share/nginx/html`. Missing files result in 404 errors. Rebuild with `./motherhouse.deploy.sh` after adding files.
 
 ---
 Questions or unclear areas? Tell me which flows need more detail (e.g., more robust locale time parsing, or deployment scripts like `motherhouse.deploy.sh`).

@@ -77,6 +77,26 @@ Both PM2 and Docker preserve:
 - **cache.db** - SQLite database at `/app/data/cache.db`
 - **logs/** - Application logs
 
+### Backup Database from Production
+
+To download the SQLite database from your remote server:
+
+```bash
+# Use the provided backup script (recommended)
+./motherhouse.backup.database.sh
+
+# Or manually download from production server
+scp motherhouse:/opt/docker/data/youtube_time/data/cache.db ./cache.db.backup
+
+# Or create timestamped backup
+scp motherhouse:/opt/docker/data/youtube_time/data/cache.db ./backups/cache.db.$(date +%Y%m%d_%H%M%S).bak
+
+# Inspect remote database without copying
+ssh motherhouse "docker exec youtube_time_api sqlite3 /app/data/cache.db 'SELECT COUNT(*) FROM cache'"
+```
+
+The `motherhouse.backup.database.sh` script automatically creates timestamped backups in `./backups/` directory.
+
 ## Environment Variables
 Required:
 ```

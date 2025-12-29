@@ -41,6 +41,7 @@ docker-compose down
 
 ### 4. Test
 - Frontend: http://localhost
+- Grid View: http://localhost/grid.html
 - Backend: http://localhost:3000/video (local) or http://localhost:3000/api/video (via Traefik in prod)
 - Database: `backend/cache.db` (persisted in `backend/data/`)
 
@@ -133,6 +134,12 @@ pm2 logs youtube-time-backend
 - Verify API_URL in `frontend/app.js`
 - Clear browser cache
 
+### Grid view not accessible (404 error)
+- Ensure `frontend/grid.html` and `frontend/grid.js` exist before building
+- Rebuild frontend Docker image: `docker-compose build` or `./motherhouse.deploy.sh`
+- Check nginx logs: `docker logs youtube_time` (production)
+- For local dev: Ensure files are in `frontend/` and restart `npm start`
+
 ### No videos found
 - Verify YouTube API key is valid and enabled in Google Cloud Console
 - Check that "YouTube Data API v3" is enabled for your project
@@ -157,10 +164,12 @@ youtube_time/
 │   ├── ecosystem.config.cjs # PM2 config
 │   └── package.json
 ├── frontend/
-│   ├── index.html           # Single page app
-│   ├── app.js               # Client logic
+│   ├── index.html           # Main single-video view
+│   ├── grid.html            # NEW: Grid view of 24-hour timeline
+│   ├── app.js               # Main view client logic
+│   ├── grid.js              # NEW: Grid view logic with lazy loading
 │   ├── styles.css           # Styling
-│   └── Dockerfile
+│   └── Dockerfile           # Nginx container (copies all files)
 ├── lab/
 │   ├── collect/run.ts       # Ad-hoc YouTube data collection
 │   ├── analyze/run.ts       # Analysis of collected data

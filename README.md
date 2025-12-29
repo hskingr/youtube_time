@@ -46,6 +46,8 @@ docker-compose up -d
 |-----------|---------|
 | `backend/` | TypeScript/Express API server |
 | `frontend/` | Static HTML/JS/CSS client |
+| `frontend/index.html` | Main single-video view |
+| `frontend/grid.html` | Grid view showing 24-hour timeline (requires `grid.js`) |
 | `docs/` | Deployment & setup guides |
 
 ## 🔧 Architecture
@@ -61,6 +63,7 @@ docker-compose up -d
 - Calls backend API
 - Embeds video in iframe
 - Auto-switches between dev (`localhost:3000`) and prod (`/api`) modes
+- Grid view (`/grid.html`) shows 24-hour timeline with lazy loading
 
 ## 📚 Documentation
 
@@ -70,6 +73,7 @@ docker-compose up -d
 
 ## 🎬 How It Works
 
+**Main View** (`/index.html`)
 1. User visits the app → sees current time
 2. Frontend calls `/video?time=HH:MM`
 3. Backend checks SQLite cache (7-day TTL)
@@ -77,6 +81,13 @@ docker-compose up -d
 5. Filters results by videos with time in title
 6. Caches result, returns `{videoId, title, viewCount, timestamp}`
 7. Frontend embeds `https://www.youtube.com/embed/{videoId}`
+
+**Grid View** (`/grid.html`)
+1. Shows a 24-hour timeline grid with video thumbnails
+2. Lazy loads videos as user scrolls with intersection observer
+3. Highlights current time with red border
+4. Click any video to open in modal player
+5. Jump to current time button for quick navigation
 
 ## 🔑 API Key Setup
 
@@ -144,3 +155,8 @@ DB_PATH=./cache.db             # Optional (default: ./cache.db)
 - Check backend is running: `curl http://localhost:3000/video`
 - Check browser console for network errors
 - Clear browser cache
+
+**Grid view shows 404**
+- Ensure `frontend/grid.html` exists before building Docker image
+- Rebuild frontend: `docker-compose build` or `./motherhouse.deploy.sh`
+- Check nginx logs: `docker logs youtube_time`

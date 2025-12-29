@@ -84,7 +84,15 @@ docker --context motherhouse compose -f docker-compose.prod.yml logs -f
 
 # Check status
 docker --context motherhouse compose -f docker-compose.prod.yml ps
+
+# Test main page
+curl https://your-domain.com/
+
+# Test grid view (ensure grid.html exists in frontend/)
+curl https://your-domain.com/grid.html
 ```
+
+**Note**: The grid view requires `frontend/grid.html` and `frontend/grid.js` to be present before building the Docker image. If you get a 404 for `/grid.html`, ensure these files exist and rebuild: `./motherhouse.deploy.sh`
 
 ## Method 2: Direct VPS Deployment
 
@@ -150,6 +158,24 @@ docker compose -f docker-compose.prod.yml up -d --build
 ```
 
 ## Useful Commands
+
+### Helper Scripts (Recommended)
+
+The repository includes helper scripts for common tasks:
+
+```bash
+# Deploy to production (builds, pushes, and starts containers)
+./motherhouse.deploy.sh
+
+# Monitor logs and health checks
+./motherhouse.monitor.sh
+
+# Backup database from production
+./motherhouse.backup.database.sh
+# Creates timestamped backup in ./backups/
+```
+
+### Manual Docker Commands
 
 ### Check service status
 ```bash
