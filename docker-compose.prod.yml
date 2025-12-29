@@ -1,5 +1,6 @@
 services:
   youtube_time_api:
+    container_name: youtube_time_api
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -34,6 +35,7 @@ services:
       - myNetwork
 
   youtube_time:
+    container_name: youtube_time
     build:
       context: ./frontend
       dockerfile: Dockerfile
