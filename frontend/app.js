@@ -58,11 +58,7 @@ function showVideo(videoId, title) {
     : title;
 
   document.getElementById('videoTitle').textContent = displayText;
-
-    document.getElementById('currentTime').textContent = displayText;
-
-
-
+  document.getElementById('currentTime').textContent = displayText;
 
   document.getElementById('videoContainer').classList.remove('hidden');
 }
