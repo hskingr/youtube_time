@@ -37,8 +37,9 @@ cd /opt/youtube_time
 # Create .env file
 nano .env
 
-# Add your API key:
+# Add your API keys:
 YOUTUBE_API_KEY=your_youtube_key
+YOUTUBE_API_KEY_2=your_second_youtube_key  # Optional - for quota doubling
 ```
 
 ### 3. Ensure Traefik network exists
@@ -88,9 +89,18 @@ docker --context motherhouse compose -f docker-compose.prod.yml ps
 # Test main page
 curl https://your-domain.com/
 
+# Test API endpoint (note: accessed as /api/video but routed to backend as /video)
+curl https://your-domain.com/api/video
+
 # Test grid view (ensure grid.html exists in frontend/)
 curl https://your-domain.com/grid
 ```
+
+**Important Routing Note:**
+- Users access the backend API at `https://your-domain.com/api/video` and `https://your-domain.com/api/videos`
+- Traefik strips the `/api` prefix via the `stripprefix` middleware before routing to the backend
+- Backend receives requests at `/video` and `/videos` (without the `/api` prefix)
+- Frontend code auto-detects the environment and uses the correct base URL
 
 **Note**: The grid view requires `frontend/grid.html` and `frontend/grid.js` to be present before building the Docker image. If you get a 404 for `/grid` or `/grid.html`, ensure these files exist and rebuild: `./motherhouse.deploy.sh`
 

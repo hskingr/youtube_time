@@ -33,7 +33,6 @@ npm start
 
 ```bash
 cp backend/.env.example .env
-# Edit .env with your YOUTUBE_API_KEY
 
 docker-compose up -d
 # Frontend: http://localhost
@@ -48,6 +47,7 @@ docker-compose up -d
 | `frontend/` | Static HTML/JS/CSS client |
 | `frontend/index.html` | Main single-video view |
 | `frontend/grid.html` | Grid view showing 24-hour timeline (requires `grid.js`) |
+| `frontend/favicon.svg` | Project favicon (analog clock) |
 | `docs/` | Deployment & setup guides |
 
 ## 🔧 Architecture
@@ -106,10 +106,10 @@ docker-compose up -d
 **Backend**
 ```bash
 cd backend
-npm install        # Install dependencies
-npm run dev        # Watch mode with ts-node
-npm run build      # Compile TypeScript
-npm start          # Run compiled code
+npm install         # Install dependencies
+npm run dev:nodemon # Watch mode with ts-node/esm
+npm run build       # Compile TypeScript
+npm start           # Run compiled code
 ```
 
 **Frontend**
@@ -124,6 +124,7 @@ npm start          # Start http-server on port 8000
 ```bash
 # backend/.env
 YOUTUBE_API_KEY=your_key_here  # Required
+YOUTUBE_API_KEY_2=your_key_here # Optional (fallback for errors)
 PORT=3000                       # Optional (default: 3000)
 DB_PATH=./cache.db             # Optional (default: ./cache.db)
 ```
@@ -148,7 +149,7 @@ DB_PATH=./cache.db             # Optional (default: ./cache.db)
 - Check quota: https://console.cloud.google.com/apis/dashboard
 
 **Backend not responding**
-- Check logs: `docker-compose logs backend` or `npm run dev`
+- Check logs: `docker-compose logs backend` or `npm run dev:nodemon`
 - Verify database directory: `mkdir -p backend/data`
 
 **Frontend shows error**
@@ -160,3 +161,59 @@ DB_PATH=./cache.db             # Optional (default: ./cache.db)
 - Visit `/grid` (or `/grid.html`); ensure `frontend/grid.html` exists before building Docker image
 - Rebuild frontend: `docker-compose build` or `./motherhouse.deploy.sh`
 - Check nginx logs: `docker logs youtube_time`
+
+## 🔌 API Endpoints
+
+### GET /video
+Returns a video matching the specified time. In production, accessed as `/api/video` (Traefik strips the prefix).
+
+**Query Parameters:**
+- `time` (optional): Time in HH:MM format. Defaults to current server time.
+- `skipCache` or `refresh` (optional): Set to 'true' to bypass cache.
+
+**Response (200):**
+```json
+{
+  "videoId": "dQw4w9WgXcQ",
+  "videoUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+  "title": "Video title mentioning 14:30",
+  "viewCount": 12345,
+  "timestamp": "2025-12-26T14:30:00.000Z"
+}
+```
+
+**Response (404):**
+```json
+{
+  "error": "No video found for this time"
+}
+```
+
+### GET /videos
+Returns multiple videos in a time range (used by grid view). In production, accessed as `/api/videos`.
+
+**Query Parameters:**
+- `time` (required): Center time in HH:MM format
+- `range` (optional): Minutes before/after center time (default: 30)
+- `page` (optional): Page number for pagination (default: 1)
+
+**Response (200):**
+```json
+{
+  "videos": [
+    {
+      "time": "14:30",
+      "videoId": "dQw4w9WgXcQ",
+      "videoUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      "title": "Video title mentioning 14:30",
+      "viewCount": 12345,
+      "thumbnailUrl": "https://i.ytimg.com/vi/dQw4w9WgXcQ/default.jpg",
+      "cached": true
+    }
+  ],
+  "total": 60,
+  "page": 1,
+  "limit": 60,
+  "centerTime": "14:30"
+}
+```
