@@ -14,9 +14,13 @@ let lastEntry = null;
 let hasUserScrolled = false;
 let sentinel = null; // sentinel for infinite scroll
 const debug = new URLSearchParams(window.location.search).get('debug');
+let requestedTime = null;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', async () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  requestedTime = urlParams.get('time');
+
   currentTime = getCurrentTimeHHMM();
     if (debug === 'true') {
     currentTime = '23:45';
@@ -98,9 +102,14 @@ function setupEventListeners() {
 }
 
 async function loadInitialVideos() {
+  const timeToLoad = requestedTime || currentTime;
   // Load videos around current time (±60 minutes)
-  await loadVideosInRange(currentTime, 60, false); // don't append on first load
-  scrollToTime(currentTime);
+  await loadVideosInRange(timeToLoad, 60, false); // don't append on first load
+
+  // Wait a bit for the DOM to update, then scroll.
+  setTimeout(() => {
+    scrollToTime(timeToLoad);
+  }, 500);
 }
 
 async function loadVideosInRange(centerTime, range, append = false) {
@@ -243,6 +252,11 @@ async function openVideo(video) {
   youtubeLink.href = `https://www.youtube.com/watch?v=${video.videoId}`;
 
   modal.classList.add('active');
+
+  // Update URL
+  const url = new URL(window.location);
+  url.searchParams.set('time', video.time);
+  window.history.pushState({}, '', url);
 }
 
 function closeModal() {
@@ -251,6 +265,11 @@ function closeModal() {
 
   player.src = '';
   modal.classList.remove('active');
+
+  // Clear URL param
+  const url = new URL(window.location);
+  url.searchParams.delete('time');
+  window.history.pushState({}, '', url);
 }
 
 function jumpToCurrentTime() {
