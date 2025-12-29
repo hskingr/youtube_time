@@ -63,7 +63,7 @@ docker-compose up -d
 - Calls backend API
 - Embeds video in iframe
 - Auto-switches between dev (`localhost:3000`) and prod (`/api`) modes
-- Grid view (`/grid.html`) shows 24-hour timeline with lazy loading
+- Grid view (`/grid`, also `/grid.html`) shows 24-hour timeline with lazy loading
 
 ## 📚 Documentation
 
@@ -82,7 +82,7 @@ docker-compose up -d
 6. Caches result, returns `{videoId, title, viewCount, timestamp}`
 7. Frontend embeds `https://www.youtube.com/embed/{videoId}`
 
-**Grid View** (`/grid.html`)
+**Grid View** (`/grid`, also `/grid.html`)
 1. Shows a 24-hour timeline grid with video thumbnails
 2. Lazy loads videos as user scrolls with intersection observer
 3. Highlights current time with red border
@@ -157,6 +157,6 @@ DB_PATH=./cache.db             # Optional (default: ./cache.db)
 - Clear browser cache
 
 **Grid view shows 404**
-- Ensure `frontend/grid.html` exists before building Docker image
+- Visit `/grid` (or `/grid.html`); ensure `frontend/grid.html` exists before building Docker image
 - Rebuild frontend: `docker-compose build` or `./motherhouse.deploy.sh`
 - Check nginx logs: `docker logs youtube_time`

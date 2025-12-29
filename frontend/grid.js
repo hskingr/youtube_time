@@ -14,9 +14,13 @@ let lastEntry = null;
 let hasUserScrolled = false;
 let sentinel = null; // sentinel for infinite scroll
 const debug = new URLSearchParams(window.location.search).get('debug');
+let requestedTime = null;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', async () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  requestedTime = urlParams.get('time');
+
   currentTime = getCurrentTimeHHMM();
     if (debug === 'true') {
     currentTime = '23:45';
@@ -82,12 +86,37 @@ function setupEventListeners() {
   document.getElementById('densityCompact').addEventListener('click', () => setGridDensity('compact'));
   document.getElementById('densityNormal').addEventListener('click', () => setGridDensity('normal'));
   document.getElementById('densityLarge').addEventListener('click', () => setGridDensity('large'));
+
+  // Scroll to top button
+  const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+  window.onscroll = function() {
+    if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+      scrollToTopBtn.style.display = "block";
+    } else {
+      scrollToTopBtn.style.display = "none";
+    }
+  };
+  scrollToTopBtn.addEventListener('click', () => {
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  });
 }
 
 async function loadInitialVideos() {
+  const timeToLoad = requestedTime || currentTime;
   // Load videos around current time (±60 minutes)
-  await loadVideosInRange(currentTime, 60, false); // don't append on first load
-  scrollToTime(currentTime);
+  await loadVideosInRange(timeToLoad, 60, false); // don't append on first load
+
+  // Wait for the DOM to update by checking for the target element, then scroll.
+  const maxFrames = 120; // safety limit to avoid infinite polling
+  const checkAndScroll = (attempt = 0) => {
+    const item = document.querySelector('[data-time="' + timeToLoad + '"]');
+    if (item) {
+      scrollToTime(timeToLoad);
+    } else if (attempt < maxFrames) {
+      requestAnimationFrame(() => checkAndScroll(attempt + 1));
+    }
+  };
+  requestAnimationFrame(() => checkAndScroll(0));
 }
 
 async function loadVideosInRange(centerTime, range, append = false) {
@@ -230,6 +259,11 @@ async function openVideo(video) {
   youtubeLink.href = `https://www.youtube.com/watch?v=${video.videoId}`;
 
   modal.classList.add('active');
+
+  // Update URL
+  const url = new URL(window.location);
+  url.searchParams.set('time', video.time);
+  window.history.pushState({}, '', url);
 }
 
 function closeModal() {
@@ -238,6 +272,11 @@ function closeModal() {
 
   player.src = '';
   modal.classList.remove('active');
+
+  // Clear URL param
+  const url = new URL(window.location);
+  url.searchParams.delete('time');
+  window.history.pushState({}, '', url);
 }
 
 function jumpToCurrentTime() {

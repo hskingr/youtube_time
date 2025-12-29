@@ -22,10 +22,9 @@ services:
     restart: unless-stopped
 
   youtube_time:
+    container_name: youtube_time
     build:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
       - "8080:80"
-    depends_on:
-      - youtube_time_api

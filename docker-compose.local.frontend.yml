@@ -1,0 +1,8 @@
+services:
+  youtube_time:
+    container_name: youtube_time
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"

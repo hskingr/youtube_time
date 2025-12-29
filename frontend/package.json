@@ -2,6 +2,6 @@
     "name": "frontend",
     "version": "1.0.0",
     "scripts": {
-        "start": "npx http-server . -p 8000 -c-1"
+        "start": "npx http-server . -p 8000 -c-1 -e html"
     }
 }

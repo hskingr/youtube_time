@@ -41,16 +41,8 @@ services:
       dockerfile: Dockerfile
     image: ${DOCKER_REGISTRY}/youtube_time-frontend:latest
     restart: unless-stopped
-    expose:
-      - "80"
     depends_on:
       - youtube_time_api
-    healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.youtube_time.rule=Host(`${DOMAIN}`)"
