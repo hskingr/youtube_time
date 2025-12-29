@@ -13,13 +13,17 @@ let observer = null;
 let lastEntry = null;
 let hasUserScrolled = false;
 let sentinel = null; // sentinel for infinite scroll
+const debug = new URLSearchParams(window.location.search).get('debug');
 
 // Initialize
 document.addEventListener('DOMContentLoaded', async () => {
   currentTime = getCurrentTimeHHMM();
-  currentTime = '00:28'; // For testing purposes
+    if (debug === 'true') {
+    currentTime = '23:45';
+  }
 
   setupEventListeners();
+  loadGridDensity();
   await fetchVideo();
   await loadInitialVideos();
   setupIntersectionObserver();
@@ -73,6 +77,11 @@ function setupEventListeners() {
       closeModal();
     }
   });
+
+  // Grid density controls
+  document.getElementById('densityCompact').addEventListener('click', () => setGridDensity('compact'));
+  document.getElementById('densityNormal').addEventListener('click', () => setGridDensity('normal'));
+  document.getElementById('densityLarge').addEventListener('click', () => setGridDensity('large'));
 }
 
 async function loadInitialVideos() {
@@ -118,6 +127,12 @@ function renderVideos(videos, append = false) {
   }
 
   videos.forEach(video => {
+    // if the video time already exists in the grid then remove it
+    const existingItem = grid.querySelector(`[data-time="${video.time}"]`);
+    if (existingItem) {
+      existingItem.remove();
+    }
+
     // Skip duplicates
     if (append && grid.querySelector(`[data-time="${video.time}"]`)) {
       return;
@@ -141,13 +156,23 @@ function createGridItem(video) {
 
   if (video.cached && video.thumbnailUrl) {
     // Video exists with thumbnail
+    // Add loading skeleton
+    const skeleton = document.createElement('div');
+    skeleton.className = 'skeleton-loader';
+    item.appendChild(skeleton);
+
     const img = document.createElement('img');
     img.src = video.thumbnailUrl;
     img.alt = video.title;
     img.loading = 'lazy';
 
+    img.onload = () => {
+      skeleton.remove();
+    };
+
     img.onerror = () => {
       // Fallback if thumbnail fails to load
+      skeleton.remove();
       img.style.display = 'none';
       const noSignal = document.createElement('div');
       noSignal.className = 'no-signal';
@@ -193,16 +218,18 @@ function ensureSentinel() {
 }
 
 async function openVideo(video) {
-
-
-
   const modal = document.getElementById('videoModal');
   const player = document.getElementById('modalPlayer');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalTime = document.getElementById('modalTime');
+  const youtubeLink = document.getElementById('youtubeLink');
 
-  player.src = `https://www.youtube.com/embed/${video.videoId}?autoplay=1&enablejsapi=1`;
+  player.src = `https://www.youtube.com/embed/${video.videoId}?autoplay=1`;
+  modalTitle.textContent = video.title;
+  modalTime.textContent = video.time;
+  youtubeLink.href = `https://www.youtube.com/watch?v=${video.videoId}`;
+
   modal.classList.add('active');
-
-
 }
 
 function closeModal() {
@@ -215,6 +242,7 @@ function closeModal() {
 
 function jumpToCurrentTime() {
   currentTime = getCurrentTimeHHMM();
+
   scrollToTime(currentTime);
 
   // Reload videos around current time if not in cache
@@ -304,6 +332,30 @@ function hideLoading() {
 
 function showError(message) {
   alert(`ERROR: ${message}`);
+}
+
+function setGridDensity(density) {
+  const grid = document.getElementById('videoGrid');
+  const sizes = {
+    compact: '150px',
+    normal: '200px',
+    large: '300px'
+  };
+
+  grid.style.gridTemplateColumns = `repeat(auto-fill, minmax(${sizes[density]}, 1fr))`;
+
+  // Update button states
+  document.querySelectorAll('.density-btn').forEach(btn => btn.classList.remove('active'));
+  document.getElementById(`density${density.charAt(0).toUpperCase() + density.slice(1)}`).classList.add('active');
+
+  // Save preference
+  localStorage.setItem('gridDensity', density);
+}
+
+// Load saved grid density on init
+function loadGridDensity() {
+  const saved = localStorage.getItem('gridDensity') || 'normal';
+  setGridDensity(saved);
 }
 
 
