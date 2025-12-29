@@ -106,10 +106,16 @@ async function loadInitialVideos() {
   // Load videos around current time (±60 minutes)
   await loadVideosInRange(timeToLoad, 60, false); // don't append on first load
 
-  // Wait a bit for the DOM to update, then scroll.
-  setTimeout(() => {
-    scrollToTime(timeToLoad);
-  }, 500);
+  // Wait for the DOM to update by checking for the target element, then scroll.
+  const checkAndScroll = () => {
+    const item = document.querySelector('[data-time="' + timeToLoad + '"]');
+    if (item) {
+      scrollToTime(timeToLoad);
+    } else {
+      requestAnimationFrame(checkAndScroll);
+    }
+  };
+  requestAnimationFrame(checkAndScroll);
 }
 
 async function loadVideosInRange(centerTime, range, append = false) {
