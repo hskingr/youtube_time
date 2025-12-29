@@ -107,15 +107,16 @@ async function loadInitialVideos() {
   await loadVideosInRange(timeToLoad, 60, false); // don't append on first load
 
   // Wait for the DOM to update by checking for the target element, then scroll.
-  const checkAndScroll = () => {
+  const maxFrames = 120; // safety limit to avoid infinite polling
+  const checkAndScroll = (attempt = 0) => {
     const item = document.querySelector('[data-time="' + timeToLoad + '"]');
     if (item) {
       scrollToTime(timeToLoad);
-    } else {
-      requestAnimationFrame(checkAndScroll);
+    } else if (attempt < maxFrames) {
+      requestAnimationFrame(() => checkAndScroll(attempt + 1));
     }
   };
-  requestAnimationFrame(checkAndScroll);
+  requestAnimationFrame(() => checkAndScroll(0));
 }
 
 async function loadVideosInRange(centerTime, range, append = false) {
