@@ -19,7 +19,12 @@ let requestedTime = null;
 // Initialize
 document.addEventListener('DOMContentLoaded', async () => {
   const urlParams = new URLSearchParams(window.location.search);
-  requestedTime = urlParams.get('time');
+  const timeParam = urlParams.get('time');
+  if (timeParam && timeParam.length === 4) {
+    requestedTime = `${timeParam.substring(0, 2)}:${timeParam.substring(2, 4)}`;
+  } else {
+    requestedTime = null;
+  }
 
   currentTime = getCurrentTimeHHMM();
     if (debug === 'true') {
@@ -216,7 +221,15 @@ function createGridItem(video) {
     overlay.textContent = video.time;
     item.appendChild(overlay);
 
-    item.addEventListener('click', () => openVideo(video));
+    item.addEventListener('click', () => {
+      // Update URL first
+      const url = new URL(window.location);
+      url.searchParams.set('time', video.time.replace(':', ''));
+      window.history.pushState({}, '', url);
+
+      // Then open the video
+      openVideo(video);
+    });
   } else {
     // Placeholder for missing video
     item.classList.add('placeholder');
@@ -262,7 +275,7 @@ async function openVideo(video) {
 
   // Update URL
   const url = new URL(window.location);
-  url.searchParams.set('time', video.time);
+  url.searchParams.set('time', video.time.replace(':', ''));
   window.history.pushState({}, '', url);
 }
 
