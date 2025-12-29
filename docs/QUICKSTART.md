@@ -20,6 +20,7 @@ cd frontend && npm install && cd ..
 cp backend/.env.example backend/.env
 # Edit backend/.env with your YouTube API key:
 # YOUTUBE_API_KEY=your_youtube_api_key_here
+# YOUTUBE_API_KEY_2=your_second_youtube_api_key_here (optional, for quota doubling)
 # PORT=3000 (optional, defaults to 3000)
 # DB_PATH=./cache.db (optional, defaults to ./cache.db)
 ```
@@ -42,10 +43,10 @@ docker-compose down
 ### 4. Test
 - Frontend: http://localhost
 - Grid View: http://localhost/grid (or http://localhost/grid.html)
-- Backend: http://localhost:3000/video (local) or http://localhost:3000/api/video (via Traefik in prod)
+- Backend: http://localhost:3000/video (local dev)
 - Database: `backend/cache.db` (persisted in `backend/data/`)
 
-Note: In development, the endpoint is `/video`. Traefik adds the `/api` prefix in production.
+Note: In local development, the backend endpoint is `/video`. In production with Traefik, it's accessed as `/api/video` (Traefik routes `/api/*` to backend and strips the prefix).
 
 ## Local Development without Docker
 
@@ -71,20 +72,24 @@ Visit http://localhost:8000 (or your server's port). The frontend auto-detects t
 - Traefik reverse proxy running on `myNetwork`
 - Domain configured (e.g., `time.libraryoftype.xyz`)
 - SSL certificates via Let's Encrypt
+- Environment variables configured (copy `.env.example` to `.env`)
 
 ### Deploy
 ```bash
-# Build and start with production compose
-docker-compose -f docker-compose.yml -f docker-compose.prod.yml build
-docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+# Build and start with production compose file
+docker compose -f docker-compose.prod.yml build
+docker compose -f docker-compose.prod.yml up -d
+
+# Or use the helper script (recommended)
+./motherhouse.deploy.sh
 
 # View logs
-docker-compose -f docker-compose.yml -f docker-compose.prod.yml logs -f
+docker compose -f docker-compose.prod.yml logs -f
 ```
 
 ### Access
 - Frontend: https://time.libraryoftype.xyz
-- Backend: https://time-backend.libraryoftype.xyz/api/video
+- Backend: https://time.libraryoftype.xyz/api/video (Traefik routes to backend and strips `/api`)
 
 No external ports exposed - all traffic through Traefik!
 

@@ -105,13 +105,16 @@ YOUTUBE_API_KEY=your_youtube_data_api_key
 
 Optional:
 ```
+YOUTUBE_API_KEY_2=your_second_youtube_api_key  # For quota management - backend can cycle between keys
 PORT=3000 (defaults to 3000)
 DB_PATH=/app/data/cache.db (defaults to ./cache.db; for Docker use /app/data/cache.db)
 ```
 
+**Note on Multiple API Keys:** If you provide `YOUTUBE_API_KEY_2`, the backend can cycle between API keys to effectively double your daily quota limit. YouTube Data API v3 provides 10,000 quota units/day per key (≈100 searches/day), so with 2 keys you get ≈200 searches/day.
+
 ## Health Checks
 
-Both setups include health checks that verify the `/api/video` endpoint is responding. If the health check fails 3 times in a row, the container will be considered unhealthy.
+Both setups include health checks that verify the `/video` endpoint is responding. If the health check fails 3 times in a row, the container will be considered unhealthy.
 
 ## Production Recommendations
 

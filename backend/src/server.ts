@@ -3,7 +3,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import { getCachedVideo, setCachedVideo, getCacheCount, evictOldestCache, getCachedVideosInRange, getAllCachedVideos } from './database.js';
-import { searchForTimeVideo } from './search.js';
+import { searchWithYouTube } from './search.js';
 
 dotenv.config();
 
@@ -67,7 +67,7 @@ app.get('/video', async (req: Request, res: Response) => {
       }
     }
 
-    const result = await searchForTimeVideo(time);
+    const result = await searchWithYouTube(time);
     if (!result) {
       return res.status(404).json({ error: 'No video found for this time' });
     }

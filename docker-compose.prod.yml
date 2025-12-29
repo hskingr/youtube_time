@@ -9,6 +9,7 @@ services:
       NODE_ENV: production
       PORT: 3000
       YOUTUBE_API_KEY: ${YOUTUBE_API_KEY}
+      YOUTUBE_API_KEY_2: ${YOUTUBE_API_KEY_2}
       DB_PATH: /app/data/cache.db
     restart: unless-stopped
     volumes:

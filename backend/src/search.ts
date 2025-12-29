@@ -95,13 +95,19 @@ export async function makeYouTubeApiRequest(
   endpoint: string,
   params: YoutubeApiParams
 ): Promise<any> {
-  const response = await axios.get(`https://www.googleapis.com/youtube/v3/${endpoint}`, {
-    params: {
-      ...params,
-    },
-  });
-
-  return response;
+  try {
+    const response = await axios.get(`https://www.googleapis.com/youtube/v3/${endpoint}`, {
+      params: {
+        ...params,
+      },
+    });
+    return response;
+  } catch (error: any) {
+    if (error.response) {
+      return error.response;
+    }
+    throw error;
+  }
 }
 
 function buildSearchQuery(variants: string[]): string {
@@ -114,8 +120,9 @@ function buildSearchQuery(variants: string[]): string {
   return `${baseQuery} ${exclusionTokens}`.trim();
 }
 
-async function searchWithYouTube(time: string): Promise<SearchResult | null> {
+export async function searchWithYouTube(time: string): Promise<SearchResult | null> {
   const apiKey = process.env.YOUTUBE_API_KEY;
+  const apiKey2 = process.env.YOUTUBE_API_KEY_2;
 
   if (!apiKey) {
     console.warn('YouTube API key not configured');
@@ -138,7 +145,15 @@ async function searchWithYouTube(time: string): Promise<SearchResult | null> {
   };
 
   try {
-    const response = await makeYouTubeApiRequest('search', params as YoutubeApiParams);
+    let response = await makeYouTubeApiRequest('search', params as YoutubeApiParams);
+
+    const statusCode = response.status;
+
+    if (statusCode === 403 && apiKey2) {
+      console.warn('Primary YouTube API key quota exceeded, switching to secondary key.');
+      params.key = apiKey2;
+      response = await makeYouTubeApiRequest('search', params as YoutubeApiParams);
+    }
 
     const data = response.data as YouTubeResponse;
 
@@ -155,61 +170,36 @@ async function searchWithYouTube(time: string): Promise<SearchResult | null> {
       fs.writeFileSync(`./data/${time.replace(/[: ]/g, '_')}_youtube_search.json`, JSON.stringify(response.data, null, 2));
     }
 
-    const validFilteredVideos = filtered.filter(async (item: YouTubeSearchItem) => {
-      const videoId = item.id.videoId;
-      return await verifyVideoAvailable(videoId, apiKey);
-    });
-
     // Pick a random video from the valid filtered list
-    if (validFilteredVideos.length > 0) {
-      const randomIndex = Math.floor(Math.random() * validFilteredVideos.length);
-      const selected = validFilteredVideos[randomIndex];
 
-      if (!selected) return null;
+    const randomIndex = Math.floor(Math.random() * filtered.length);
+    const selected = filtered[randomIndex];
 
-      return {
-        videoId: selected.id.videoId,
-        videoUrl: `https://www.youtube.com/watch?v=${selected.id.videoId}`,
-        title: selected.snippet.title,
-        viewCount: 0, // View count can be fetched separately if needed
-        thumbnailUrl: selected.snippet.thumbnails?.high?.url || selected.snippet.thumbnails?.medium?.url || selected.snippet.thumbnails?.default?.url
-      } as SearchResult;
+    if (!selected) return null;
+
+    return {
+      videoId: selected.id.videoId,
+      videoUrl: `https://www.youtube.com/watch?v=${selected.id.videoId}`,
+      title: selected.snippet.title,
+      viewCount: 0, // View count can be fetched separately if needed
+      thumbnailUrl: selected.snippet.thumbnails?.high?.url || selected.snippet.thumbnails?.medium?.url || selected.snippet.thumbnails?.default?.url
+    } as SearchResult;
+
+
+    return null;
+  } catch (error: any) {
+    if (error.response) {
+      const status = error.response.status;
+      const message = error.response.data?.error?.message || 'Unknown error';
+      console.error(`YouTube API error [${status}]: ${message}`);
+    } else if (error.request) {
+      console.error('YouTube API: No response received from server');
+    } else {
+      console.error('YouTube API error:', error.message || 'Unknown error');
     }
-
-    return null;
-  } catch (error) {
-    console.error('YouTube search error:', error);
     return null;
   }
 }
 
-async function verifyVideoAvailable(videoId: string, apiKey: string): Promise<boolean> {
-  try {
-    const response = await axios.get<YouTubeVideosResponse>('https://www.googleapis.com/youtube/v3/videos', {
-      params: {
-        key: apiKey,
-        part: 'status,contentDetails',
-        id: videoId
-      }
-    });
 
-    if (!response.data.items || response.data.items.length === 0) return false;
-
-    const video = response.data.items[0];
-    if (!video) return false;
-
-    // Check if video is public and embeddable
-    if (video.status.privacyStatus !== 'public') return false;
-    if (!video.status.embeddable) return false;
-
-    return true;
-  } catch (error) {
-    console.error(`Error verifying video ${videoId}:`, error);
-    return false;
-  }
-}
-
-export async function searchForTimeVideo(time: string): Promise<SearchResult | null> {
-  return await searchWithYouTube(time);
-}
 
