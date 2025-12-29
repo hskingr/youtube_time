@@ -167,12 +167,10 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(
-                90deg,
-                rgba(0, 255, 0, 0.05) 25%,
-                rgba(0, 255, 0, 0.1) 50%,
-                rgba(0, 255, 0, 0.05) 75%
-            );
+            background: linear-gradient(90deg,
+                    rgba(0, 255, 0, 0.05) 25%,
+                    rgba(0, 255, 0, 0.1) 50%,
+                    rgba(0, 255, 0, 0.05) 75%);
             background-size: 200% 100%;
             animation: shimmer 1.5s infinite;
         }
@@ -181,6 +179,7 @@
             0% {
                 background-position: -200% 0;
             }
+
             100% {
                 background-position: 200% 0;
             }
@@ -273,6 +272,20 @@
             border: 2px solid #00ff00;
         }
 
+        .scroll-to-top-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 30px;
+            z-index: 99;
+            display: none;
+            /* Hidden by default */
+            font-size: 1.5rem;
+            padding: 10px 20px;
+            border-radius: 50%;
+            height: 60px;
+            width: 60px;
+        }
+
         @media (max-width: 768px) {
             .grid-container {
                 padding: 0rem;
@@ -336,6 +349,8 @@
             </div>
         </div>
     </div>
+
+    <button id="scrollToTopBtn" class="btn scroll-to-top-btn" title="Go to top">↑</button>
 
     <script src="grid.js"></script>
 </body>
