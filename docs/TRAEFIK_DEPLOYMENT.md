@@ -89,10 +89,10 @@ docker --context motherhouse compose -f docker-compose.prod.yml ps
 curl https://your-domain.com/
 
 # Test grid view (ensure grid.html exists in frontend/)
-curl https://your-domain.com/grid.html
+curl https://your-domain.com/grid
 ```
 
-**Note**: The grid view requires `frontend/grid.html` and `frontend/grid.js` to be present before building the Docker image. If you get a 404 for `/grid.html`, ensure these files exist and rebuild: `./motherhouse.deploy.sh`
+**Note**: The grid view requires `frontend/grid.html` and `frontend/grid.js` to be present before building the Docker image. If you get a 404 for `/grid` or `/grid.html`, ensure these files exist and rebuild: `./motherhouse.deploy.sh`
 
 ## Method 2: Direct VPS Deployment
 

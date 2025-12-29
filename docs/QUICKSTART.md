@@ -41,7 +41,7 @@ docker-compose down
 
 ### 4. Test
 - Frontend: http://localhost
-- Grid View: http://localhost/grid.html
+- Grid View: http://localhost/grid (or http://localhost/grid.html)
 - Backend: http://localhost:3000/video (local) or http://localhost:3000/api/video (via Traefik in prod)
 - Database: `backend/cache.db` (persisted in `backend/data/`)
 
@@ -135,7 +135,7 @@ pm2 logs youtube-time-backend
 - Clear browser cache
 
 ### Grid view not accessible (404 error)
-- Ensure `frontend/grid.html` and `frontend/grid.js` exist before building
+- Access via `/grid` (or `/grid.html`); ensure `frontend/grid.html` and `frontend/grid.js` exist before building
 - Rebuild frontend Docker image: `docker-compose build` or `./motherhouse.deploy.sh`
 - Check nginx logs: `docker logs youtube_time` (production)
 - For local dev: Ensure files are in `frontend/` and restart `npm start`

@@ -47,7 +47,7 @@ We should definately use some kind of lazy loading so not everything is displaye
     - **Missing Data**: The API returns only what exists. The Frontend is responsible for rendering placeholders for missing minutes based on the requested range.
 
 ### 4. Frontend Grid (Lazy Loading)
-- **Action**: Create `frontend/grid.js` and create a `frontend/index_grid.html` file.
+- **Action**: Create `frontend/grid.js` and create a `frontend/grid.html` file.
 - **Features**:
     - **Container**: Add a toggleable `#grid-view` div.
     - **Virtualization/Lazy Loading**: Use `IntersectionObserver` to detect scroll position and fetch data in chunks (e.g., 60 minutes at a time).

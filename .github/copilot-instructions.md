@@ -12,7 +12,7 @@ This repo implements a small web app that shows a YouTube video matching the cur
 - **Frontend (Static HTML/JS/CSS):**
   - Files: `frontend/index.html`, `frontend/app.js`, `frontend/styles.css`.
   - Client logic: `app.js` computes HH:MM, selects API base (`localhost:3000` in dev, `origin + /api` in prod), calls `/video?time=HH:MM`, and embeds `https://www.youtube.com/embed/{videoId}`.
-  - Grid view: `frontend/grid.html` + `frontend/grid.js` displays 24-hour timeline with lazy loading (intersection observer), modal player, and jump-to-now navigation.
+  - Grid view: `frontend/grid.html` (`/grid`) + `frontend/grid.js` displays 24-hour timeline with lazy loading (intersection observer), modal player, and jump-to-now navigation.
 - **Deployment:**
   - Traefik routes `/api` to backend and root to frontend. See `docker-compose.prod.yml`.
   - Frontend image serves static content via nginx; backend runs Node.
