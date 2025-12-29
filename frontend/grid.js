@@ -117,6 +117,10 @@ async function loadInitialVideos() {
     const item = document.querySelector('[data-time="' + timeToLoad + '"]');
     if (item) {
       scrollToTime(timeToLoad);
+
+      if (requestedTime) {
+        item.click();
+      }
     } else if (attempt < maxFrames) {
       requestAnimationFrame(() => checkAndScroll(attempt + 1));
     }
