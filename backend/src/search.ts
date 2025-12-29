@@ -48,34 +48,34 @@ function generateTimeVariants(time: string): string[] {
   const parts = time.split(':');
   const hours = parts[0] || '00';
   const minutes = parts[1] || '00';
-  const h = parseInt(hours);
-  const m = minutes;
+  const hour = parseInt(hours);
+  const minuteStr = minutes;
 
-  const variants: string[] = [
-  ];
+  const variants: string[] = [];
 
-  if (h > 12) {
-    const h12 = h - 12;
-    variants.push(`${h12}:${minutes} PM`);
-    variants.push(`${h12}:${minutes}PM`);
-  } else if (h === 0) {
-    variants.push(`12:${minutes} AM`);
-    variants.push(`12:${minutes}AM`);
-  } else if (h < 12) {
-    variants.push(`${h}:${minutes} AM`);
-    variants.push(`${h}:${minutes}AM`);
-  } else {
-    variants.push(`${h}:${minutes} PM`);
-    variants.push(`${h}:${minutes}PM`);
-  }
+  // 12-hour formats
+  const hour12 = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+  const ampm = hour < 12 ? 'AM' : 'PM';
+  const ampmLower = ampm.toLowerCase();
+
+  const hour12Str = hour12.toString();
+  const hour12PaddedStr = hour12.toString().padStart(2, '0');
+
+  // Common 12-hour variants
+  variants.push(`${hour12Str}:${minuteStr} ${ampm}`);        // "7:34 PM"
+  variants.push(`${hour12Str}:${minuteStr} ${ampmLower}`);   // "7:34 pm"
+  variants.push(`${hour12Str}:${minuteStr}${ampm}`);         // "7:34PM"
+  variants.push(`${hour12Str}:${minuteStr}${ampmLower}`);    // "7:34pm"
+  variants.push(`${hour12PaddedStr}:${minuteStr}${ampmLower}`); // "07:34pm"
+  variants.push(`${hour12Str}:${minuteStr} ${ampm.charAt(0)}.${ampm.charAt(1)}.`); // "7:34 P.M."
 
   return [...new Set(variants)];
 }
 
-function extractTimeFromTitle(title: string, targetTime: string): boolean {
-  const timeRegex = /(\d{1,2}):(\d{2})\s*(AM|PM|am|pm)?|\d{1,2}\.\d{2}|\d{4}/g;
-  const matches = title.match(timeRegex) || [];
-  return matches.some(match => match.includes(targetTime.substring(0, 5)));
+function validateTimeInTitle(title: string): boolean {
+  const strictTimeRegex = /(?<!\d)(\d{1,2}):(\d{2})(?!:\d{2})\s*(AM|am|pm|PM|a\.m\.|p\.m\.)/gi;
+  const matches = title.match(strictTimeRegex);
+  return matches !== null && matches.length === 1;
 }
 
 interface YoutubeApiParams {
@@ -104,7 +104,17 @@ export async function makeYouTubeApiRequest(
   return response;
 }
 
-async function searchWithYouTube(query: string): Promise<SearchResult | null> {
+function buildSearchQuery(variants: string[]): string {
+  const baseQuery = variants.map(v => `"${v}"`).join(' | ');
+  const monthExclusions = [
+    'january', 'february', 'march', 'april', 'may', 'june',
+    'july', 'august', 'september', 'october', 'november', 'december'
+  ];
+  const exclusionTokens = monthExclusions.map(month => `-${month}`).join(' ');
+  return `${baseQuery} ${exclusionTokens}`.trim();
+}
+
+async function searchWithYouTube(time: string): Promise<SearchResult | null> {
   const apiKey = process.env.YOUTUBE_API_KEY;
 
   if (!apiKey) {
@@ -112,16 +122,19 @@ async function searchWithYouTube(query: string): Promise<SearchResult | null> {
     return null;
   }
 
+  const variants = generateTimeVariants(time);
+  const query = buildSearchQuery(variants);
+
   const params = {
     key: apiKey,
     part: 'snippet',
     q: query,
     maxResults: 50,
-    order: 'viewCount',
     type: 'video',
     videoEmbeddable: 'true',
     videoSyndicated: 'true',
-    safeSearch: 'moderate'
+    safeSearch: 'moderate',
+    publishedBefore: '2015-01-01T00:00:00Z'
   };
 
   try {
@@ -132,34 +145,35 @@ async function searchWithYouTube(query: string): Promise<SearchResult | null> {
     if (!data.items || data.items.length === 0) return null;
 
     const filtered = data.items.filter((item: YouTubeSearchItem) =>
-      extractTimeFromTitle(item.snippet.title, query)
+      validateTimeInTitle(item.snippet.title)
     );
 
     if (filtered.length === 0) return null;
 
     // save all api calls for development purposes
     if (process.env.NODE_ENV !== 'production') {
-      fs.writeFileSync(`./data/${query.replace(/[: ]/g, '_')}_youtube_search.json`, JSON.stringify(response.data, null, 2));
+      fs.writeFileSync(`./data/${time.replace(/[: ]/g, '_')}_youtube_search.json`, JSON.stringify(response.data, null, 2));
     }
 
-    // Verify videos are actually available and embeddable
-    for (const item of filtered) {
+    const validFilteredVideos = filtered.filter(async (item: YouTubeSearchItem) => {
       const videoId = item.id.videoId;
-      const isValid = await verifyVideoAvailable(videoId, apiKey);
+      return await verifyVideoAvailable(videoId, apiKey);
+    });
 
-      if (isValid) {
-        const thumbnailUrl = item.snippet.thumbnails?.medium?.url ||
-          item.snippet.thumbnails?.high?.url ||
-          item.snippet.thumbnails?.default?.url;
+    // Pick a random video from the valid filtered list
+    if (validFilteredVideos.length > 0) {
+      const randomIndex = Math.floor(Math.random() * validFilteredVideos.length);
+      const selected = validFilteredVideos[randomIndex];
 
-        return {
-          videoId,
-          videoUrl: `https://www.youtube.com/watch?v=${videoId}`,
-          title: item.snippet.title,
-          viewCount: 0,
-          thumbnailUrl
-        };
-      }
+      if (!selected) return null;
+
+      return {
+        videoId: selected.id.videoId,
+        videoUrl: `https://www.youtube.com/watch?v=${selected.id.videoId}`,
+        title: selected.snippet.title,
+        viewCount: 0, // View count can be fetched separately if needed
+        thumbnailUrl: selected.snippet.thumbnails?.high?.url || selected.snippet.thumbnails?.medium?.url || selected.snippet.thumbnails?.default?.url
+      } as SearchResult;
     }
 
     return null;
@@ -196,13 +210,6 @@ async function verifyVideoAvailable(videoId: string, apiKey: string): Promise<bo
 }
 
 export async function searchForTimeVideo(time: string): Promise<SearchResult | null> {
-  const variants = generateTimeVariants(time);
-
-  for (const variant of variants) {
-    const youtubeResult = await searchWithYouTube(variant);
-    if (youtubeResult) return youtubeResult;
-  }
-
-  return null;
+  return await searchWithYouTube(time);
 }
 

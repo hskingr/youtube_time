@@ -44,8 +44,9 @@ app.get('/video', async (req: Request, res: Response) => {
     // query string 'time' in HH:MM format
     const queryTime = req.query.time as string | undefined;
     const querySkipCache = req.query.skipCache;
+    const queryRefresh = req.query.refresh;
 
-    const skipCache = querySkipCache === 'true' ? true : false;
+    const skipCache = querySkipCache === 'true' || queryRefresh === 'true';
     const time = queryTime || getCurrentTimeHHMM();
 
 
