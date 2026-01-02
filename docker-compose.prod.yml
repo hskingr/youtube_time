@@ -34,6 +34,12 @@ services:
       - "traefik.http.services.youtube_time_api.loadbalancer.server.port=3000"
     networks:
       - myNetwork
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   youtube_time:
     container_name: youtube_time
@@ -52,7 +58,12 @@ services:
       - "traefik.http.routers.youtube_time.priority=1"
     networks:
       - myNetwork
-
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 networks:
   myNetwork:
     external: true

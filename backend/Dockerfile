@@ -16,6 +16,9 @@ FROM node:20-alpine
 
 WORKDIR /app
 
+# Needed for container healthchecks
+RUN apk add --no-cache curl
+
 # Install PM2 globally
 RUN npm install -g pm2
 
