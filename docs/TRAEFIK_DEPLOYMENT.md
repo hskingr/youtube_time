@@ -92,6 +92,10 @@ curl https://your-domain.com/
 # Test API endpoint (note: accessed as /api/video but routed to backend as /video)
 curl https://your-domain.com/api/video
 
+# Test health endpoints
+curl https://your-domain.com/api/health
+curl https://your-domain.com/health
+
 # Test grid view (ensure grid.html exists in frontend/)
 curl https://your-domain.com/grid
 ```

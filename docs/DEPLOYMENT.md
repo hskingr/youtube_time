@@ -114,7 +114,11 @@ DB_PATH=/app/data/cache.db (defaults to ./cache.db; for Docker use /app/data/cac
 
 ## Health Checks
 
-Both setups include health checks that verify the `/video` endpoint is responding. If the health check fails 3 times in a row, the container will be considered unhealthy.
+Both services expose `/health` endpoints:
+- Backend: `/health` (or `/api/health` when Traefik is in front)
+- Frontend: `/health` (served by nginx)
+
+The backend image now installs `curl` so Docker can run HTTP health probes. `docker-compose.prod.yml` defines health checks for both containers; if a probe fails 3 times, the container is marked unhealthy.
 
 ## Production Recommendations
 

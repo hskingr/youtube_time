@@ -49,6 +49,7 @@ docker-compose up -d
 | `frontend/grid.html` | Grid view showing 24-hour timeline (requires `grid.js`) |
 | `frontend/favicon.svg` | Project favicon (analog clock) |
 | `docs/` | Deployment & setup guides |
+| `lab/` | Optional YouTube data lab (custom collectors + link analyzer) |
 
 ## 🔧 Architecture
 
@@ -201,6 +202,16 @@ Returns multiple videos in a time range (used by grid view). In production, acce
 ```json
 {
   "videos": [
+
+### GET /health
+Basic liveness probe. In production, accessed as `/api/health` (Traefik strips the prefix).
+
+**Response (200):**
+```json
+{
+  "status": "ok"
+}
+```
     {
       "time": "14:30",
       "videoId": "dQw4w9WgXcQ",

@@ -36,6 +36,7 @@ Notes:
 - The time-based collector builds multiple 12-hour time variants and appends `-january ... -december` to queries to avoid month/date hits.
 - The time-based collector uses `publishedBefore=2015-01-01T00:00:00Z` to bias toward older uploads; the custom collector currently uses `publishedBefore=2013-01-01T00:00:00Z`.
 - The custom collector accepts any search string plus `--max-results` to override the default 50.
+- The custom collector applies a geolocation bias around London (`51.47481439646989,-0.08761067207069825`) with a `1000km` radius; tweak these params in `collect/run_custom_query.ts` if needed.
 - Saved files are written under `lab/data/*_test_result.json` (time collector) and `lab/data/*_query_<slug>.json` (custom collector) with the request metadata (API key redacted).
 
 ## Next Steps (for future work)

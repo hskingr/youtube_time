@@ -44,6 +44,7 @@ docker-compose down
 - Frontend: http://localhost
 - Grid View: http://localhost/grid (or http://localhost/grid.html)
 - Backend: http://localhost:3000/video (local dev)
+- Backend health: http://localhost:3000/health (prod: https://your-domain.com/api/health)
 - Database: `backend/cache.db` (persisted in `backend/data/`)
 
 Note: In local development, the backend endpoint is `/video`. In production with Traefik, it's accessed as `/api/video` (Traefik routes `/api/*` to backend and strips the prefix).
@@ -176,8 +177,10 @@ youtube_time/
 │   ├── styles.css           # Styling
 │   └── Dockerfile           # Nginx container (copies all files)
 ├── lab/
-│   ├── collect/run.ts       # Ad-hoc YouTube data collection
+│   ├── collect/run.ts       # Time-based YouTube data collection
+│   ├── collect/run_custom_query.ts # Custom query collector (--max-results supported)
 │   ├── analyze/run.ts       # Analysis of collected data
+│   ├── analyze/run_links.ts  # List unique YouTube links across saved files
 │   └── data/                # Saved JSON responses
 ├── docs/                    # Guides (quickstart, deployment, lab)
 ├── scripts/                 # Helper scripts

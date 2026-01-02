@@ -25,6 +25,7 @@ npm run analyze:links  # List all collected video links across data files
 Notes:
 - Time-based collector saves to `lab/data/*_test_result.json` and uses `publishedBefore=2015-01-01T00:00:00Z`.
 - Custom collector saves to `lab/data/*_query_<slug>.json` and currently uses `publishedBefore=2013-01-01T00:00:00Z`.
+- Custom collector applies a location bias around UK with a `1000km` radius; edit `collect/run_custom_query.ts` to change it.
 
 Or from the backend directory:
 ```bash
