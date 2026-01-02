@@ -17,8 +17,14 @@ The `.env` file is symlinked from `../backend/.env` automatically.
 From the lab directory:
 ```bash
 npm run collect  # Run collect/run.ts
+npm run collect:custom "your query"  # Run collect/run_custom_query.ts with any search query
 npm run analyze  # Run analyze/run.ts
+npm run analyze:links  # List all collected video links across data files
 ```
+
+Notes:
+- Time-based collector saves to `lab/data/*_test_result.json` and uses `publishedBefore=2015-01-01T00:00:00Z`.
+- Custom collector saves to `lab/data/*_query_<slug>.json` and currently uses `publishedBefore=2013-01-01T00:00:00Z`.
 
 Or from the backend directory:
 ```bash

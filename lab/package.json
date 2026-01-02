@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "collect": "node --loader ts-node/esm collect/run.ts",
-    "analyze": "node --loader ts-node/esm analyze/run.ts"
+    "collect:custom": "node --loader ts-node/esm collect/run_custom_query.ts",
+    "analyze": "node --loader ts-node/esm analyze/run.ts",
+    "analyze:links": "node --loader ts-node/esm analyze/run_links.ts"
   },
   "keywords": [],
   "author": "",
